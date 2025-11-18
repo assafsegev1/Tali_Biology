@@ -1,18 +1,11 @@
-
 import { GoogleGenAI } from "@google/genai";
+
+// Fix for "Cannot find name 'process'" error in TypeScript
+declare var process: any;
 
 // Helper function to safely get the API key in different environments
 const getApiKey = () => {
-  // 1. Try standard process.env (For local preview / Node environments)
-  try {
-    if (typeof process !== "undefined" && process.env && process.env.API_KEY) {
-      return process.env.API_KEY;
-    }
-  } catch (e) {
-    // process is not defined, ignore
-  }
-
-  // 2. Try Vite import.meta.env (For Vercel/Vite builds)
+  // 1. Try Vite import.meta.env (For Vercel/Vite builds - Priority)
   try {
     // @ts-ignore
     if (import.meta && import.meta.env && import.meta.env.VITE_API_KEY) {
@@ -20,7 +13,16 @@ const getApiKey = () => {
       return import.meta.env.VITE_API_KEY;
     }
   } catch (e) {
-    // import.meta is not defined, ignore
+    // import.meta is not defined
+  }
+
+  // 2. Try standard process.env (For local preview / Node environments)
+  try {
+    if (typeof process !== "undefined" && process.env && process.env.API_KEY) {
+      return process.env.API_KEY;
+    }
+  } catch (e) {
+    // process is not defined
   }
 
   return "";
